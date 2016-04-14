@@ -2,24 +2,12 @@
 	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"location": {
-			"type": "string",
+		"virtualMachines": {
+			"type": "object",
 			"metadata": {
-				"description": "Deployment location"
+				"description": "virtualMachines"
 			}
-		},
-		"vmName": {
-			"type": "string",
-			"metadata": {
-				"description": "VM name"
-			}
-		},
-		"vmSize": {
-			"type": "string",
-			"metadata": {
-				"description": "VM size"
-			}
-		},
+		}
 		"adminUsername": {
 			"type": "string",
 			"metadata": {
@@ -31,58 +19,16 @@
 			"metadata": {
 				"description": "adminUser Password"
 			}
-		},		
-		"imagePublisher": {
-			"type": "string",
-			"metadata": {
-				"description": "imagePublisher"
-			}
-		},			
-		"imageOffer": {
-			"type": "string",
-			"metadata": {
-				"description": "imageOffer"
-			}
-		},			
-		"osSku": {
-			"type": "string",
-			"metadata": {
-				"description": "osSku"
-			}
-		},
-		"osdiskName": {
-			"type": "string",
-			"metadata": {
-				"description": "osdiskName"
-			}
-		},			
-		"storageAccountName": {
-			"type": "string",
-			"metadata": {
-				"description": "storageAccountName"
-			}
-		},			
-		"vmStorageAccountContainerName": {
-			"type": "string",
-			"metadata": {
-				"description": "vmStorageAccountContainerName"
-			}
-		},			
+		},	
 		"networkInterfacesRef": {
 			"type": "string",
 			"metadata": {
 				"description": "networkInterfaces Reference"
 			}
-		},
-		"availabilitySetRef": {
-			"type": "string",
-			"metadata": {
-				"description": "availabilitySetRef"
-			}
-		}
-		
+		}	
 	},
-	
+
+
 	"variables": {
 		"apiVersion": "2015-06-15"
 	},
@@ -91,28 +37,28 @@
 	{
 		"apiVersion": "[variables('apiVersion')]",
 		"type": "Microsoft.Compute/virtualMachines",
-		"name": "[parameters('vmName')]",
-		"location": "[parameters('location')]",
+		"name": "[parameters('virtualMachines').vmName]",
+		"location": "[parameters('virtualMachines').location]",
 		"properties": {
 			"hardwareProfile": {
-				"vmSize": "[parameters('vmSize')]"
+				"vmSize": "[parameters('virtualMachines').vmSize]"
 			},
 			"osProfile": {
-				"computerName": "[parameters('vmName')]",
-				"adminUsername": "[parameters('adminUsername')]",
-				"adminPassword": "[parameters('adminPassword')]"
+				"computerName": "[parameters('virtualMachines').vmName]",
+				"adminUsername": "[parameters('virtualMachines').adminUsername]",
+				"adminPassword": "[parameters('virtualMachines').adminPassword]"
 			},
 			"storageProfile": {
 				"imageReference": {
-					"publisher": "[parameters('imagePublisher')]",
-					"offer": "[parameters('imageOffer')]",
-					"sku": "[parameters('osSku')]",
+					"publisher": "[parameters('virtualMachines').imagePublisher]",
+					"offer": "[parameters('virtualMachines').imageOffer]",
+					"sku": "[parameters('virtualMachines').osSku]",
 					"version": "latest"
 				},
 				"osDisk": {
-					"name": "[parameters('osdiskName')]",
+					"name": "[parameters('virtualMachines').osDiskName]",
 					"vhd": {
-						"uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/',parameters('vmStorageAccountContainerName'),'/',parameters('osdiskName'),'.vhd')]"
+						"uri": "[concat('http://',parameters('virtualMachines').storageAccountName,'.blob.core.windows.net/',parameters('virtualMachines').vmStorageAccountContainerName,'/',parameters('virtualMachines').osDiskName,'.vhd')]"
 					},
 					"caching": "ReadWrite",
 					"createOption": "FromImage"
@@ -123,14 +69,10 @@
 					"id": "[parameters('networkInterfacesRef')]"
 				}]
 			},
-			"availabilitySet": {
-				"id": "[parameters('availabilitySetRef')]"
-			},
-			
 			"diagnosticsProfile": {
 				"bootDiagnostics": {
 					"enabled": "true",
-					"storageUri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net')]"
+					"storageUri": "[concat('http://',parameters('virtualMachines').storageAccountName,'.blob.core.windows.net')]"
 				}
 			}
 		}
