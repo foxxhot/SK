@@ -1,0 +1,171 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {	
+		"importInfoVM": {
+			"type": "object",
+			"metadata": {
+				"description": "Virtual Machine Parameter"
+			}
+		},
+		"importInfoNIC": {
+			"type": "object",
+			"metadata": {
+				"description": "Virtual Machine Parameter"
+			}
+		},
+		"adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Username for the Virtual Machine."
+            },
+            "defaultValue": "localadmin"
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password for the Virtual Machine."
+            }
+        },
+		"location": {
+			"type": "string",
+            "metadata": {
+                "description": "Password for the Virtual Machine."
+            }
+		},
+		"virtualNetworks": {
+			"type": "object",
+            "metadata": {
+                "description": "virtualNetworks"
+            }
+		}
+	},
+	
+	"variables": {
+		"baseurl": "https://raw.githubusercontent.com/foxxhot/SK/master/createvnet.json",
+		"apiVersion": "2015-01-01",
+		"location": "[resourceGroup().location]",
+		"baseurl": "https://raw.githubusercontent.com/foxxhot/SK/master/",
+		"vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworks').vnetName)]",
+		"storageaccount": {
+			"storageAccountType": "Standard_LRS",
+			"storageAccountName": "arm1003"
+		},
+
+	},
+	
+	"resources": [
+	{
+		"apiVersion": "[variables('apiVersion')]",
+		"name": "create-storageaccount",
+		"type": "Microsoft.Resources/deployments",
+		"properties": {
+			"mode": "incremental",
+			"templateLink": {
+				"uri": "[concat(variables('baseurl'),'storage-account-create.json')]",
+				"contentVersion": "1.0.0.0"
+			},
+			"parameters": {
+				"location": {
+					"value": "[variables('location')]"
+				},
+				"storageAccountType": {
+					"value": "[variables('storageaccount').storageAccountType]"
+				},
+				"storageAccountName": {
+					"value": "[variables('storageaccount').storageAccountName]"
+				}
+			}
+		}
+	},	
+	
+	{
+		"apiVersion": "[variables('apiVersion')]",
+		"name": "create-vnet",
+		"type": "Microsoft.Resources/deployments",
+		"properties": {
+			"mode": "incremental",
+			"templateLink": {
+				"uri": "[concat(variables('baseurl'),'vnet-2sub-create.json')]",
+				"contentVersion": "1.0.0.0"
+			},
+			"parameters": {
+				"location": {
+					"value": "[variables('location')]"
+				},
+				"virtualNetworks": {
+					"value": "[parameters('virtualNetworks')]"
+				}
+			}
+		}
+	},
+
+	{
+		"apiVersion": "[variables('apiVersion')]",
+		"name": "[concat('create-nic-',parameters('importInfoNIC').networkInterfaces[copyIndex()].nicName)]",
+		"type": "Microsoft.Resources/deployments",
+		"dependsOn": ["Microsoft.Resources/deployments/create-vnet"],
+		"copy":{
+			"name": "copycreateNic",
+			"count": "[length(parameters('importInfoNIC').networkInterfaces)]" 
+		},
+		"properties": {
+			"mode": "incremental",
+			"templateLink": {
+				"uri": "[concat(variables('baseurl'),'nic-create.json')]",
+				"contentVersion": "1.0.0.0"
+			},
+			"parameters": {
+				"location": {
+					"value": "[variables('location')]"
+				},
+				"nicName": {
+					"value": "[parameters('importInfoNIC').networkInterfaces[copyIndex()].nicName]"
+				},
+				"privateIPAllocationMethod": {
+					"value": "static"
+				},
+				"privateIPAddress": {
+					"value": "[parameters('importInfoNIC').networkInterfaces[copyIndex()].privateIPAddress]"
+				},
+				"subnetRef": {
+					"value": "[concat(variables('vnetID'),'/subnets/',parameters('importInfoNIC').networkInterfaces[copyIndex()].subnetName)]"
+				}
+			}
+		}
+	},
+
+	{
+		"apiVersion": "[variables('apiVersion')]",
+		"name": "[concat('create-vm-',parameters('importInfoVM').virtualMachines[copyIndex()].vmName)]",
+		"type": "Microsoft.Resources/deployments",
+		"dependsOn": ["[concat('Microsoft.Resources/deployments/','create-nic-',parameters('importInfoVM').virtualMachines[copyIndex()].networkInterface1)]","Microsoft.Resources/deployments/create-storageaccount"],
+		"copy":{
+			"name": "copycreateVm",
+			"count":  "[length(parameters('importInfoVM').virtualMachines)]" 
+		},
+		"properties": {
+			"mode": "incremental",
+			"templateLink": {
+				"uri": "[concat(variables('baseurl'),'vm-windows-create.json')]",
+				"contentVersion": "1.0.0.0"
+			},
+			"parameters": {
+				"virtualMachines": {
+					"value": "[parameters('importInfoVM').virtualMachines[copyIndex()]]"
+				},
+				"adminUsername": {
+					"value": "[parameters('adminUsername')]"
+				},
+				"adminPassword": {
+					"value": "[parameters('adminPassword')]"
+				},
+				"networkInterfacesRef": {
+					"value": "[resourceId('Microsoft.Network/networkInterfaces',parameters('importInfoVM').virtualMachines[copyIndex()].networkInterface1)]"
+				}
+			}
+		}
+	},	
+	
+	]
+}
