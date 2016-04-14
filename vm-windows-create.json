@@ -20,6 +20,7 @@
 				"description": "adminUser Password"
 			}
 		},
+		
 		"networkInterfacesRef": {
 			"type": "string",
 			"metadata": {
@@ -65,6 +66,9 @@
 				"networkInterfaces": [{
 					"id": "[parameters('networkInterfacesRef')]"
 				}]
+			},
+			"availabilitySet": {
+				"id": "[resourceId('Microsoft.Compute/availabilitySets',parameters('virtualMachines').availabilitySetName)]"
 			},
 			"diagnosticsProfile": {
 				"bootDiagnostics": {
