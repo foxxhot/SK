@@ -1,0 +1,81 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"virtualMachines": {
+			"type": "object",
+			"metadata": {
+				"description": "virtualMachines"
+			}
+		},
+		"adminUsername": {
+			"type": "string",
+			"metadata": {
+				"description": "adminUser name"
+			}
+		},
+		"adminPassword": {
+			"type": "string",
+			"metadata": {
+				"description": "adminUser Password"
+			}
+		}
+	},
+	"variables": {
+		"apiVersion": "2015-06-15"
+	},
+	"resources": [{
+		"apiVersion": "[variables('apiVersion')]",
+		"type": "Microsoft.Compute/virtualMachines",
+		"name": "[parameters('virtualMachines').vmName]",
+		"location": "[parameters('virtualMachines').location]",
+		"properties": {
+			"hardwareProfile": {
+				"vmSize": "[parameters('virtualMachines').vmSize]"
+			},
+			"osProfile": {
+				"computerName": "[parameters('virtualMachines').vmName]",
+				"adminUsername": "[parameters('adminUsername')]",
+				"adminPassword": "[parameters('adminPassword')]"
+			},
+			"storageProfile": {
+				"imageReference": {
+					"publisher": "[parameters('virtualMachines').imagePublisher]",
+					"offer": "[parameters('virtualMachines').imageOffer]",
+					"sku": "[parameters('virtualMachines').osSku]",
+					"version": "[parameters('virtualMachines').version]",
+				},
+				"osDisk": {
+					"name": "[parameters('virtualMachines').osDiskName]",
+					"vhd": {
+						"uri": "[concat('http://',parameters('virtualMachines').osDiskStorageAccountName,'.blob.core.windows.net/',parameters('virtualMachines').osDiskStorageAccountContainerName,'/',parameters('virtualMachines').osDiskName,'.vhd')]"
+					},
+					"caching": "ReadWrite",
+					"createOption": "FromImage"
+				},
+				
+			},
+			"networkProfile": {
+				"networkInterfaces": [{
+					"properties": {
+						"primary": true
+					},
+					"id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('virtualMachines').networkInterface1)]"
+				},
+				{
+					"properties": {
+						"primary": false
+					},				
+					"id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('virtualMachines').networkInterface2)]"
+				}
+				]
+			},
+			"diagnosticsProfile": {
+				"bootDiagnostics": {
+					"enabled": "true",
+					"storageUri": "[concat('http://',parameters('virtualMachines').osDiskStorageAccountName,'.blob.core.windows.net')]"
+				}
+			}
+		}
+	}]
+}
