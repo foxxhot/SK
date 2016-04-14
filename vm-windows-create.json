@@ -49,12 +49,12 @@
 					"publisher": "[parameters('virtualMachines').imagePublisher]",
 					"offer": "[parameters('virtualMachines').imageOffer]",
 					"sku": "[parameters('virtualMachines').osSku]",
-					"version": "latest"
+					"version": "[parameters('virtualMachines').version]",
 				},
 				"osDisk": {
 					"name": "[parameters('virtualMachines').osDiskName]",
 					"vhd": {
-						"uri": "[concat('http://',parameters('virtualMachines').storageAccountName,'.blob.core.windows.net/',parameters('virtualMachines').vmStorageAccountContainerName,'/',parameters('virtualMachines').osDiskName,'.vhd')]"
+						"uri": "[concat('http://',parameters('virtualMachines').osDiskStorageAccountName,'.blob.core.windows.net/',parameters('virtualMachines').osDiskStorageAccountContainerName,'/',parameters('virtualMachines').osDiskName,'.vhd')]"
 					},
 					"caching": "ReadWrite",
 					"createOption": "FromImage"
@@ -69,7 +69,7 @@
 			"diagnosticsProfile": {
 				"bootDiagnostics": {
 					"enabled": "true",
-					"storageUri": "[concat('http://',parameters('virtualMachines').storageAccountName,'.blob.core.windows.net')]"
+					"storageUri": "[concat('http://',parameters('virtualMachines').osDiskStorageAccountName,'.blob.core.windows.net')]"
 				}
 			}
 		}
