@@ -57,7 +57,7 @@
 			},
 			"networkProfile": {
 				"networkInterfaces": [{
-				    "properties": {
+				    	"properties": {
 						"primary": true
 					},
 					"id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('virtualMachines').networkInterface1)]"
