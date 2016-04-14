@@ -19,22 +19,18 @@
 			"metadata": {
 				"description": "adminUser Password"
 			}
-		},	
+		},
 		"networkInterfacesRef": {
 			"type": "string",
 			"metadata": {
 				"description": "networkInterfaces Reference"
 			}
-		}	
+		}
 	},
-
-
 	"variables": {
 		"apiVersion": "2015-06-15"
 	},
-	
-	"resources": [
-	{
+	"resources": [{
 		"apiVersion": "[variables('apiVersion')]",
 		"type": "Microsoft.Compute/virtualMachines",
 		"name": "[parameters('virtualMachines').vmName]",
@@ -45,8 +41,8 @@
 			},
 			"osProfile": {
 				"computerName": "[parameters('virtualMachines').vmName]",
-				"adminUsername": "[parameters('virtualMachines').adminUsername]",
-				"adminPassword": "[parameters('virtualMachines').adminPassword]"
+				"adminUsername": "[parameters('adminUsername')]",
+				"adminPassword": "[parameters('adminPassword')]"
 			},
 			"storageProfile": {
 				"imageReference": {
@@ -63,6 +59,7 @@
 					"caching": "ReadWrite",
 					"createOption": "FromImage"
 				},
+				
 			},
 			"networkProfile": {
 				"networkInterfaces": [{
@@ -76,6 +73,5 @@
 				}
 			}
 		}
-	}
-	]
+	}]
 }
