@@ -47,7 +47,6 @@
 				"name": "ipconfig1",
 				"properties": {
 					"privateIPAllocationMethod": "[parameters('privateIPAllocationMethod')]",
-					"privateIPAddress": "[parameters('privateIPAddress')]",
 					"subnet": {
 						"id": "[parameters('subnetRef')]"
 					}
