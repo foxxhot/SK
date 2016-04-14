@@ -70,7 +70,7 @@
 				}
 				]
 			},
-			"availabilitySetRef": {
+			"availabilitySet": {
 				"id": "[resourceId('Microsoft.Compute/availabilitySets',parameters('virtualMachines').availabilitySetName)]"
 			},
 			"diagnosticsProfile": {

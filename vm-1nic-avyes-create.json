@@ -63,7 +63,7 @@
 					"id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('virtualMachines').networkInterface1)]"
 				}]
 			},
-			"availabilitySetRef": {
+			"availabilitySet": {
 				"id": "[resourceId('Microsoft.Compute/availabilitySets',parameters('virtualMachines').availabilitySetName)]"
 			},			
 
