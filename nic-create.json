@@ -8,48 +8,31 @@
 				"description": "Deployment location"
 			}
 		},
-		"nicName": {
-			"type": "string",
+		"networkInterfaces": {
+			"type": "object",
 			"metadata": {
 				"description": "Nic name"
-			}
-		},
-		"privateIPAllocationMethod": {
-			"type": "string",
-			"metadata": {
-				"description": "privateIPAllocationMethod"
-			}
-		},
-		"privateIPAddress": {
-			"type": "string",
-			"metadata": {
-				"description": "privateIPAddress"
-			}
-		},
-		"subnetRef": {
-			"type": "string",
-			"metadata": {
-				"description": "subnetRef"
 			}
 		}
 	},
 	
 	"variables": {
-		"apiVersion": "2015-06-15"
+		"apiVersion": "2015-06-15",
+		"vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('networkInterfaces').vnetName)]",
 	},
 	"resources": [{
 		"apiVersion": "[variables('apiVersion')]",
 		"type": "Microsoft.Network/networkInterfaces",
-		"name": "[parameters('nicName')]",
+		"name": "[parameters('networkInterfaces').nicName]",
 		"location": "[parameters('location')]",
 		"properties": {
 			"ipConfigurations": [{
 				"name": "ipconfig1",
 				"properties": {
-					"privateIPAllocationMethod": "[parameters('privateIPAllocationMethod')]",
-					"privateIPAddress": "[parameters('privateIPAddress')]",
+					"privateIPAllocationMethod": "[parameters('networkInterfaces').privateIPAllocationMethod]",
+					"privateIPAddress": "[parameters('networkInterfaces').privateIPAddress]",
 					"subnet": {
-						"id": "[parameters('subnetRef')]"
+						"id": "[concat(variables('vnetID'),'/subnets/',parameters('networkInterfaces').subnetName)]"
 					}
 				}
 			}]
