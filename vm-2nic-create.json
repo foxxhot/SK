@@ -57,9 +57,15 @@
 			},
 			"networkProfile": {
 				"networkInterfaces": [{
+					"properties": {
+						"primary": true
+					},
 					"id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('virtualMachines').networkInterface1)]"
 				},
 				{
+					"properties": {
+						"primary": false
+					},				
 					"id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('virtualMachines').networkInterface2)]"
 				}
 				]
