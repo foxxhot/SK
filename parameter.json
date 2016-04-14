@@ -10,6 +10,7 @@
 					"location": "japanwest",
 					"rgName": "xxx",
 					"vmSize": "Standard_A3",
+					"availabilitySetExisit": "yes",
 					"availabilitySetName": "av1",
 					"imagePublisher": "OpenLogic",
 					"imageOffer": "CentOS",
@@ -20,7 +21,7 @@
 					"networkInterface2": "AP01-02",
 					"networkInterface3": "",
 					"osDiskName": "AP01-01",
-					"osDiskStorageAccountName": "arm1007",
+					"osDiskStorageAccountName": "arm1011",
 					"osDiskStorageAccountContainerName": "vhds",
 					"osDiskSize": "127G"
 				},
@@ -30,6 +31,7 @@
 					"location": "japanwest",
 					"rgName": "xxx",
 					"vmSize": "Standard_D2",
+					"availabilitySetExisit": "no",
 					"availabilitySetName": "",
 					"imagePublisher": "OpenLogic",
 					"imageOffer": "CentOS",
@@ -40,7 +42,7 @@
 					"networkInterface2": "",
 					"networkInterface3": "",
 					"osDiskName": "DB01-01",
-					"osDiskStorageAccountName": "arm1007",
+					"osDiskStorageAccountName": "arm1011",
 					"osDiskStorageAccountContainerName": "vhds",
 					"osDiskSize": "127G"
 				},
@@ -50,6 +52,7 @@
 					"location": "japanwest",
 					"rgName": "xxxx",
 					"vmSize": "Standard_A1",
+					"availabilitySetExisit": "no",
 					"availabilitySetName": "",
 					"imagePublisher": "OpenLogic",
 					"imageOffer": "CentOS",
@@ -60,7 +63,7 @@
 					"networkInterface2": "",
 					"networkInterface3": "",
 					"osDiskName": "LG01-01",
-					"osDiskStorageAccountName": "arm1007",
+					"osDiskStorageAccountName": "arm1011",
 					"osDiskStorageAccountContainerName": "vhds",
 					"osDiskSize": "127G"
 				}]

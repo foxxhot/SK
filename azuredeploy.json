@@ -41,23 +41,43 @@
 		}
 	},
 	
+	
+	
+	
+	
 	"variables": {
-		"baseurl": "https://raw.githubusercontent.com/foxxhot/SK/master/createvnet.json",
 		"apiVersion": "2015-01-01",
 		"location": "[resourceGroup().location]",
 		"baseurl": "https://raw.githubusercontent.com/foxxhot/SK/master/",
-		"storageaccount": {
-			"storageAccountType": "Standard_LRS",
-			"storageAccountName": "arm1007"
-		},
+		"availabilitySet": [
+			{
+				"availabilitySetName": "av1",
+				"platformFaultDomainCount": "3",
+				"platformUpdateDomainCount": "20"
+			}
+		],
 
+		"storageAccount": [
+			{
+				"storageAccountType": "Standard_LRS",
+				"storageAccountName": "arm1011"
+			}
+		]
+		
 	},
+	
+	
+	
 	
 	"resources": [
 	{
 		"apiVersion": "[variables('apiVersion')]",
-		"name": "create-storageaccount",
+		"name": "[concat('create-storageaccount-',variables('storageAccount')[copyIndex()].storageAccountName)]",
 		"type": "Microsoft.Resources/deployments",
+		"copy":{
+			"name": "copycreateStorageAccount",
+			"count":  "[length(variables('storageAccount'))]" 
+		},
 		"properties": {
 			"mode": "incremental",
 			"templateLink": {
@@ -69,14 +89,46 @@
 					"value": "[variables('location')]"
 				},
 				"storageAccountType": {
-					"value": "[variables('storageaccount').storageAccountType]"
+					"value": "[variables('storageAccount')[copyIndex()].storageAccountType]"
 				},
 				"storageAccountName": {
-					"value": "[variables('storageaccount').storageAccountName]"
+					"value": "[variables('storageAccount')[copyIndex()].storageAccountName]"
+				}
+			}
+		}
+	},
+	
+	{
+		"apiVersion": "[variables('apiVersion')]",
+		"name": "[concat('create-availabilityset-',variables('availabilitySet')[copyIndex()].availabilitySetName)]",
+		"type": "Microsoft.Resources/deployments",
+		"copy":{
+			"name": "copycreateAvailabilitySet",
+			"count":  "[length(variables('availabilitySet'))]" 
+		},
+		"properties": {
+			"mode": "incremental",
+			"templateLink": {
+				"uri": "[concat(variables('baseurl'),'availabilityset-create.json')]",
+				"contentVersion": "1.0.0.0"
+			},
+			"parameters": {
+				"location": {
+					"value": "[parameters('location')]"
+				},
+				"availabilitySetName": {
+					"value": "[variables('availabilitySet')[copyIndex()].availabilitySetName]"
+				},
+				"platformFaultDomainCount": {
+					"value": "[variables('availabilitySet')[copyIndex()].platformFaultDomainCount]"
+				},
+				"platformUpdateDomainCount": {
+					"value": "[variables('availabilitySet')[copyIndex()].platformUpdateDomainCount]"
 				}
 			}
 		}
 	},	
+	
 	
 	{
 		"apiVersion": "[variables('apiVersion')]",
@@ -129,7 +181,7 @@
 		"apiVersion": "[variables('apiVersion')]",
 		"name": "[concat('create-vm-',parameters('importInfoVM').virtualMachines[copyIndex()].vmName)]",
 		"type": "Microsoft.Resources/deployments",
-		"dependsOn": ["copycreateNic","Microsoft.Resources/deployments/create-storageaccount"],
+		"dependsOn": ["copycreateNic","copycreateStorageAccount","copycreateAvailabilitySet"],
 		"copy":{
 			"name": "copycreateVm",
 			"count":  "[length(parameters('importInfoVM').virtualMachines)]" 
@@ -137,7 +189,7 @@
 		"properties": {
 			"mode": "incremental",
 			"templateLink": {
-				"uri": "[concat(variables('baseurl'),'vm-',parameters('importInfoVM').virtualMachines[copyIndex()].numberOfNic,'nic-create.json')]",
+				"uri": "[concat(variables('baseurl'),'vm-',parameters('importInfoVM').virtualMachines[copyIndex()].numberOfNic,'nic-av',parameters('importInfoVM').virtualMachines[copyIndex()].availabilitySetExisit,'-create.json')]",
 				"contentVersion": "1.0.0.0"
 			},
 			"parameters": {
