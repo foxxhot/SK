@@ -19,13 +19,6 @@
 			"metadata": {
 				"description": "adminUser Password"
 			}
-		},
-		
-		"networkInterfacesRef": {
-			"type": "string",
-			"metadata": {
-				"description": "networkInterfaces Reference"
-			}
 		}
 	},
 	"variables": {
@@ -64,11 +57,8 @@
 			},
 			"networkProfile": {
 				"networkInterfaces": [{
-					"id": "[parameters('networkInterfacesRef')]"
+					"id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('virtualMachines').networkInterface1)]"
 				}]
-			},
-			"availabilitySet": {
-				"id": "[resourceId('Microsoft.Compute/availabilitySets',parameters('virtualMachines').availabilitySetName)]"
 			},
 			"diagnosticsProfile": {
 				"bootDiagnostics": {
