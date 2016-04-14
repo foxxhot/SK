@@ -15,11 +15,12 @@
 					"imageOffer": "CentOS",
 					"osSku": "6.7",
 					"version": "latest",
+					"numberOfNic": "2",
 					"networkInterface1": "AP01-01",
 					"networkInterface2": "AP01-02",
 					"networkInterface3": "",
 					"osDiskName": "AP01-01",
-					"osDiskStorageAccountName": "arm1003",
+					"osDiskStorageAccountName": "arm1007",
 					"osDiskStorageAccountContainerName": "vhds",
 					"osDiskSize": "127G"
 				},
@@ -34,11 +35,12 @@
 					"imageOffer": "CentOS",
 					"osSku": "6.7",
 					"version": "latest",
+					"numberOfNic": "1",
 					"networkInterface1": "DB01-01",
 					"networkInterface2": "",
 					"networkInterface3": "",
 					"osDiskName": "DB01-01",
-					"osDiskStorageAccountName": "arm1003",
+					"osDiskStorageAccountName": "arm1007",
 					"osDiskStorageAccountContainerName": "vhds",
 					"osDiskSize": "127G"
 				},
@@ -53,11 +55,12 @@
 					"imageOffer": "CentOS",
 					"osSku": "6.7",
 					"version": "latest",
+					"numberOfNic": "1",
 					"networkInterface1": "LG01-01",
 					"networkInterface2": "",
 					"networkInterface3": "",
 					"osDiskName": "LG01-01",
-					"osDiskStorageAccountName": "arm1003",
+					"osDiskStorageAccountName": "arm1007",
 					"osDiskStorageAccountContainerName": "vhds",
 					"osDiskSize": "127G"
 				}]
@@ -68,22 +71,30 @@
 			"value": {
 				"networkInterfaces": [{
 					"nicName": "AP01-01",
-					"subnetName": "ap",
+					"vnetName":"testvnet",
+					"subnetName": "db",
+					"privateIPAllocationMethod": "static",
 					"privateIPAddress": "10.40.0.148"
 				},
 				{
 					"nicName": "AP01-02",
-					"subnetName": "db",
+					"vnetName": "testvnet",
+					"subnetName": "ap",
+					"privateIPAllocationMethod": "static",
 					"privateIPAddress": "10.40.0.132"
 				},
 				{
 					"nicName": "DB01-01",
-					"subnetName": "db",
+					"vnetName":"testvnet",
+					"subnetName": "ap",
+					"privateIPAllocationMethod": "static",
 					"privateIPAddress": "10.40.0.133"
 				},
 				{
 					"nicName": "LG01-01",
-					"subnetName": "T2-FNC-SN-001-SV",
+					"vnetName": "testvnet",
+					"subnetName": "ap",
+					"privateIPAllocationMethod": "static",
 					"privateIPAddress": "10.40.0.134"
 				}]
 			}
@@ -99,7 +110,7 @@
 		},
 		"virtualNetworks": {
 			"value": {
-				"vnetName": "xxxxx",
+				"vnetName": "testvnet",
 				"vnetAddressPrefix": "10.40.0.128/26",
 				"subnet1Name": "ap",
 				"subnet1Prefix": "10.40.0.128/28",

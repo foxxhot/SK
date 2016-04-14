@@ -46,10 +46,9 @@
 		"apiVersion": "2015-01-01",
 		"location": "[resourceGroup().location]",
 		"baseurl": "https://raw.githubusercontent.com/foxxhot/SK/master/",
-		"vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworks').vnetName)]",
 		"storageaccount": {
 			"storageAccountType": "Standard_LRS",
-			"storageAccountName": "arm1003"
+			"storageAccountName": "arm1007"
 		},
 
 	},
@@ -119,17 +118,8 @@
 				"location": {
 					"value": "[variables('location')]"
 				},
-				"nicName": {
-					"value": "[parameters('importInfoNIC').networkInterfaces[copyIndex()].nicName]"
-				},
-				"privateIPAllocationMethod": {
-					"value": "static"
-				},
-				"privateIPAddress": {
-					"value": "[parameters('importInfoNIC').networkInterfaces[copyIndex()].privateIPAddress]"
-				},
-				"subnetRef": {
-					"value": "[concat(variables('vnetID'),'/subnets/',parameters('importInfoNIC').networkInterfaces[copyIndex()].subnetName)]"
+				"networkInterfaces": {
+					"value": "[parameters('importInfoNIC').networkInterfaces[copyIndex()]]"
 				}
 			}
 		}
@@ -139,7 +129,7 @@
 		"apiVersion": "[variables('apiVersion')]",
 		"name": "[concat('create-vm-',parameters('importInfoVM').virtualMachines[copyIndex()].vmName)]",
 		"type": "Microsoft.Resources/deployments",
-		"dependsOn": ["[concat('Microsoft.Resources/deployments/','create-nic-',parameters('importInfoVM').virtualMachines[copyIndex()].networkInterface1)]","Microsoft.Resources/deployments/create-storageaccount"],
+		"dependsOn": ["copycreateNic","Microsoft.Resources/deployments/create-storageaccount"],
 		"copy":{
 			"name": "copycreateVm",
 			"count":  "[length(parameters('importInfoVM').virtualMachines)]" 
@@ -147,7 +137,7 @@
 		"properties": {
 			"mode": "incremental",
 			"templateLink": {
-				"uri": "[concat(variables('baseurl'),'vm-windows-create.json')]",
+				"uri": "[concat(variables('baseurl'),'vm-',parameters('importInfoVM').virtualMachines[copyIndex()].numberOfNic,'nic-create.json')]",
 				"contentVersion": "1.0.0.0"
 			},
 			"parameters": {
@@ -159,9 +149,6 @@
 				},
 				"adminPassword": {
 					"value": "[parameters('adminPassword')]"
-				},
-				"networkInterfacesRef": {
-					"value": "[resourceId('Microsoft.Network/networkInterfaces',parameters('importInfoVM').virtualMachines[copyIndex()].networkInterface1)]"
 				}
 			}
 		}
