@@ -1,0 +1,42 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"importInfoVM": {
+			"value": {
+				"virtualMachines": 			
+				[
+			
+				]
+			}
+		},
+		
+		"importInfoNIC": {
+			"value": {
+				"networkInterfaces": 
+				[
+				
+				]	
+			}
+		},
+		"virtualNetworks": {
+			"value": {
+				"vnetName": "testvnet",
+				"vnetAddressPrefix": "10.40.0.128/26",
+				"subnet1Name": "ap",
+				"subnet1Prefix": "10.40.0.128/28",
+				"subnet2Name": "db",
+				"subnet2Prefix": "10.40.0.144/28"
+			}
+		},
+		"location": {
+			"value": "japanwest"
+		},		
+		"adminUsername": {
+			"value": "feadmin"
+		},
+		"adminPassword": {
+			"value": "Qweasd123"
+		}
+	}
+}
