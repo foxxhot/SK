@@ -58,7 +58,7 @@
 		],
 		"storageAccount": [{
 			"storageAccountType": "Standard_LRS",
-			"storageAccountName": "arm2001"
+			"storageAccountName": "arm3000"
 		}]
 	},
 	"resources": [{
