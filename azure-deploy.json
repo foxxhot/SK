@@ -1,0 +1,215 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"importInfoVM": {
+			"type": "object",
+			"metadata": {
+				"description": "Virtual Machine Parameter"
+			}
+		},
+		"importInfoNIC": {
+			"type": "object",
+			"metadata": {
+				"description": "Virtual Machine Parameter"
+			}
+		},
+		"adminUsername": {
+			"type": "string",
+			"metadata": {
+				"description": "Username for the Virtual Machine."
+			},
+			"defaultValue": "localadmin"
+		},
+		"adminPassword": {
+			"type": "securestring",
+			"metadata": {
+				"description": "Password for the Virtual Machine."
+			}
+		}
+	},
+	"variables": {
+		"apiVersion": "2015-01-01",
+		"location": "[resourceGroup().location]",
+		"baseurl": "https://raw.githubusercontent.com/foxxhot/SK/master/",
+		"virtualNetworks": {
+			"vnetName": "FNC-VN-001",
+			"vnetAddressPrefix": "10.40.0.0/25",
+			"subnet1Name": "FNC-SN-001-SV",
+			"subnet1Prefix": "10.40.0.0/27",
+			"subnet2Name": "FNC-SN-002-DB",
+			"subnet2Prefix": "10.40.0.32/29",
+			"subnet3Name": "FNC-SN-003-DB",
+			"subnet3Prefix": "10.40.0.40/29",
+			"subnet4Name": "FNC-SN-004-SV",
+			"subnet4Prefix": "10.40.0.48/28"
+		},
+		"availabilitySet": [{
+			"availabilitySetName": "FNC-AS-001-AP",
+			"platformFaultDomainCount": "3",
+			"platformUpdateDomainCount": "20"
+		},
+		{
+			"availabilitySetName": "FNC-AS-002-DB",
+			"platformFaultDomainCount": "3",
+			"platformUpdateDomainCount": "20"
+		},
+		
+		],
+		"storageAccount": [{
+			"storageAccountType": "Standard_LRS",
+			"storageAccountName": "arm2001"
+		}]
+	},
+	"resources": [{
+		"apiVersion": "[variables('apiVersion')]",
+		"name": "[concat('create-storageaccount-',variables('storageAccount')[copyIndex()].storageAccountName)]",
+		"type": "Microsoft.Resources/deployments",
+		"copy": {
+			"name": "copycreateStorageAccount",
+			"count": "[length(variables('storageAccount'))]"
+		},
+		"properties": {
+			"mode": "incremental",
+			"templateLink": {
+				"uri": "[concat(variables('baseurl'),'storage-account-create.json')]",
+				"contentVersion": "1.0.0.0"
+			},
+			"parameters": {
+				"location": {
+					"value": "[variables('location')]"
+				},
+				"storageAccountType": {
+					"value": "[variables('storageAccount')[copyIndex()].storageAccountType]"
+				},
+				"storageAccountName": {
+					"value": "[variables('storageAccount')[copyIndex()].storageAccountName]"
+				}
+			}
+		}
+	},
+	{
+		"apiVersion": "[variables('apiVersion')]",
+		"name": "[concat('create-availabilityset-',variables('availabilitySet')[copyIndex()].availabilitySetName)]",
+		"type": "Microsoft.Resources/deployments",
+		"dependsOn": ["copycreateStorageAccount"],
+		"copy": {
+			"name": "copycreateAvailabilitySet",
+			"count": "[length(variables('availabilitySet'))]"
+		},
+		"properties": {
+			"mode": "incremental",
+			"templateLink": {
+				"uri": "[concat(variables('baseurl'),'availabilityset-create.json')]",
+				"contentVersion": "1.0.0.0"
+			},
+			"parameters": {
+				"location": {
+					"value": "[variables('location')]"
+				},
+				"availabilitySetName": {
+					"value": "[variables('availabilitySet')[copyIndex()].availabilitySetName]"
+				},
+				"platformFaultDomainCount": {
+					"value": "[variables('availabilitySet')[copyIndex()].platformFaultDomainCount]"
+				},
+				"platformUpdateDomainCount": {
+					"value": "[variables('availabilitySet')[copyIndex()].platformUpdateDomainCount]"
+				}
+			}
+		}
+	},
+	{
+		"apiVersion": "2015-06-15",
+		"type": "Microsoft.Network/virtualNetworks",
+		"name": "[variables('virtualNetworks').vnetName]",
+		"location": "[variables('location')]",
+		"dependsOn": ["copycreateAvailabilitySet"],
+		"properties": {
+			"addressSpace": {
+				"addressPrefixes": ["[variables('virtualNetworks').vnetAddressPrefix]"]
+			},
+			"subnets": [{
+				"name": "[variables('virtualNetworks').subnet1Name]",
+				"properties": {
+					"addressPrefix": "[variables('virtualNetworks').subnet1Prefix]"
+				}
+			},
+			{
+				"name": "[variables('virtualNetworks').subnet2Name]",
+				"properties": {
+					"addressPrefix": "[variables('virtualNetworks').subnet2Prefix]"
+				}
+			},
+			{
+				"name": "[variables('virtualNetworks').subnet3Name]",
+				"properties": {
+					"addressPrefix": "[variables('virtualNetworks').subnet3Prefix]"
+				}
+			},
+			{
+				"name": "[variables('virtualNetworks').subnet4Name]",
+				"properties": {
+					"addressPrefix": "[variables('virtualNetworks').subnet4Prefix]"
+				}
+			},
+			]
+		}
+	},
+	{
+		"apiVersion": "[variables('apiVersion')]",
+		"name": "[concat('create-nic-',parameters('importInfoNIC').networkInterfaces[copyIndex()].nicName)]",
+		"type": "Microsoft.Resources/deployments",
+		"dependsOn": ["[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworks').vnetName)]"],
+		"copy": {
+			"name": "copycreateNic",
+			"count": "[length(parameters('importInfoNIC').networkInterfaces)]"
+		},
+		"properties": {
+			"mode": "incremental",
+			"templateLink": {
+				"uri": "[concat(variables('baseurl'),'nic-create.json')]",
+				"contentVersion": "1.0.0.0"
+			},
+			"parameters": {
+				"location": {
+					"value": "[variables('location')]"
+				},
+				"networkInterfaces": {
+					"value": "[parameters('importInfoNIC').networkInterfaces[copyIndex()]]"
+				}
+			}
+		}
+	},
+	{
+		"apiVersion": "[variables('apiVersion')]",
+		"name": "[concat('create-vm-',parameters('importInfoVM').virtualMachines[copyIndex()].vmName)]",
+		"type": "Microsoft.Resources/deployments",
+		"dependsOn": ["copycreateNic",
+		"copycreateStorageAccount",
+		"copycreateAvailabilitySet"],
+		"copy": {
+			"name": "copycreateVm",
+			"count": "[length(parameters('importInfoVM').virtualMachines)]"
+		},
+		"properties": {
+			"mode": "incremental",
+			"templateLink": {
+				"uri": "[concat(variables('baseurl'),'vm-',parameters('importInfoVM').virtualMachines[copyIndex()].numberOfNic,'nic-av',parameters('importInfoVM').virtualMachines[copyIndex()].availabilitySetExisit,'-create.json')]",
+				"contentVersion": "1.0.0.0"
+			},
+			"parameters": {
+				"virtualMachines": {
+					"value": "[parameters('importInfoVM').virtualMachines[copyIndex()]]"
+				},
+				"adminUsername": {
+					"value": "[parameters('adminUsername')]"
+				},
+				"adminPassword": {
+					"value": "[parameters('adminPassword')]"
+				}
+			}
+		}
+	},
+	]
+}
